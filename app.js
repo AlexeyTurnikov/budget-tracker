@@ -16,9 +16,6 @@ const elements = {
   addBtn: document.getElementById("addBtn"),
   status: document.getElementById("status"),
   
-  // Категории
-  categoryBtns: document.querySelectorAll(".category-btn"),
-  
   // Список расходов
   expenseList: document.getElementById("expenseList"),
   filterSelect: document.getElementById("filterSelect"),
@@ -563,14 +560,18 @@ function saveSettings() {
 // ===== Обработчики категорий =====
 
 function setupCategoryButtons() {
-  elements.categoryBtns.forEach(btn => {
+  const categoryBtns = document.querySelectorAll(".category-btn");
+  console.log("Найдено кнопок категорий:", categoryBtns.length);
+  
+  categoryBtns.forEach(btn => {
     btn.addEventListener("click", () => {
       const category = btn.dataset.category;
+      console.log("Нажата категория:", category);
       elements.title.value = category;
       elements.category.value = category;
       
       // Визуальная обратная связь
-      elements.categoryBtns.forEach(b => b.classList.remove("selected"));
+      categoryBtns.forEach(b => b.classList.remove("selected"));
       btn.classList.add("selected");
       
       // Небольшая задержка для анимации
