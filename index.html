@@ -250,6 +250,12 @@
       color: white;
       border-radius: var(--radius);
       margin-bottom: var(--spacing);
+      cursor: pointer;
+      transition: transform 0.2s ease;
+    }
+
+    .monthly-summary:active {
+      transform: scale(0.98);
     }
 
     .monthly-summary .amount {
@@ -260,6 +266,17 @@
     }
 
     .monthly-summary .label {
+      font-size: 14px;
+      opacity: 0.85;
+      font-weight: 500;
+    }
+
+    .monthly-summary.collapsed .amount,
+    .monthly-summary.collapsed .label {
+      display: none;
+    }
+
+    .monthly-summary .toggle-hint {
       font-size: 14px;
       opacity: 0.85;
       font-weight: 500;
@@ -291,10 +308,43 @@
       justify-content: space-between;
       align-items: center;
       border: 1px solid transparent;
+      position: relative;
+      transition: transform 0.3s ease, opacity 0.3s ease;
+      touch-action: pan-y;
     }
 
     .expense-item:active {
       border-color: var(--color-border);
+    }
+
+    .expense-item.swiping {
+      transition: none;
+    }
+
+    .expense-item.deleting {
+      opacity: 0;
+      transform: translateX(-100%);
+    }
+
+    .expense-item .delete-btn {
+      position: absolute;
+      right: -80px;
+      top: 50%;
+      transform: translateY(-50%);
+      background: var(--color-danger);
+      color: white;
+      border: none;
+      border-radius: 8px;
+      padding: 8px 16px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      opacity: 0;
+      transition: opacity 0.2s ease;
+    }
+
+    .expense-item.swiped .delete-btn {
+      opacity: 1;
     }
 
     .expense-info {
@@ -439,7 +489,8 @@
   <h1>💰 Мои расходы</h1>
 
   <!-- Сумма за месяц -->
-  <div class="monthly-summary">
+  <div class="monthly-summary collapsed" id="monthlySummary">
+    <div class="toggle-hint">Нажмите, чтобы увидеть расходы</div>
     <div class="amount" id="monthlyAmount">0 ₽</div>
     <div class="label" id="monthlyLabel">За текущий месяц</div>
   </div>
@@ -450,29 +501,25 @@
 
     <div class="input-group">
       <label>Название</label>
-      <input type="text" id="title" placeholder="Кофе с круассаном" autocomplete="off" />
+      <input type="text" id="title" placeholder="Кофе.Вкусвилл" autocomplete="off" />
     </div>
 
-    <div class="row">
-      <div class="input-group">
-        <label>Сумма (₽)</label>
-        <input type="number" id="amount" inputmode="decimal" placeholder="300" step="0.01" />
-      </div>
-
-      <div class="input-group">
-        <label>Категория</label>
-        <input type="text" id="category" placeholder="Еда" autocomplete="off" />
-      </div>
+    <div class="input-group">
+      <label>Сумма (₽)</label>
+      <input type="number" id="amount" inputmode="decimal" placeholder="300" step="0.01" />
     </div>
 
-    <label>Быстрый выбор категории</label>
+    <!-- Скрытое поле для категории -->
+    <input type="hidden" id="category" value="" />
+
+    <label>Быстрый выбор</label>
     <div class="category-buttons">
-      <button class="category-btn" data-category="🍕 Еда">🍕 Еда</button>
-      <button class="category-btn" data-category="🚗 Транспорт">🚗 Транспорт</button>
-      <button class="category-btn" data-category="🏠 Дом">🏠 Дом</button>
-      <button class="category-btn" data-category="🎮 Развлечения">🎮 Развлечения</button>
-      <button class="category-btn" data-category="🛒 Покупки">🛒 Покупки</button>
-      <button class="category-btn" data-category="📱 Другое">📱 Другое</button>
+      <button class="category-btn" data-category="Кофе.Вкусвилл">☕ Кофе.Вкусвилл</button>
+      <button class="category-btn" data-category="Кофе.Цифра">☕ Кофе.Цифра</button>
+      <button class="category-btn" data-category="Столовая.НК">🍽️ Столовая.НК</button>
+      <button class="category-btn" data-category="Столовая.Цифра">🍽️ Столовая.Цифра</button>
+      <button class="category-btn" data-category="Вода">💧 Вода</button>
+      <button class="category-btn" data-category="Продукты">🛒 Продукты</button>
     </div>
 
     <div class="input-group">

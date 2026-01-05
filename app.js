@@ -26,6 +26,7 @@ const elements = {
   // Месячная сумма
   monthlyAmount: document.getElementById("monthlyAmount"),
   monthlyLabel: document.getElementById("monthlyLabel"),
+  monthlySummary: document.getElementById("monthlySummary"),
   
   // Синхронизация
   syncBtn: document.getElementById("syncBtn"),
@@ -220,6 +221,39 @@ async function dbMarkAsSynced(ids) {
   });
 }
 
+async function dbDeleteExpense(id) {
+  const db = await openDB();
+  return new Promise((resolve, reject) => {
+    const transaction = db.transaction(STORE_NAME, "readwrite");
+    const store = transaction.objectStore(STORE_NAME);
+    const request = store.delete(id);
+    
+    request.onsuccess = () => resolve();
+    request.onerror = () => reject(request.error);
+  });
+}
+    ids.forEach((id) => {
+      const getRequest = store.get(id);
+      getRequest.onsuccess = () => {
+        const expense = getRequest.result;
+        if (expense) {
+          expense.synced = true;
+          store.put(expense);
+        }
+        completed++;
+        if (completed === ids.length) {
+          resolve();
+        }
+      };
+      getRequest.onerror = () => reject(getRequest.error);
+    });
+    
+    if (ids.length === 0) {
+      resolve();
+    }
+  });
+}
+
 // ===== Логика приложения =====
 
 // Добавить расход
@@ -228,7 +262,7 @@ async function addExpense() {
     // Валидация
     const title = elements.title.value.trim();
     const amount = parseFloat(elements.amount.value);
-    const category = elements.category.value.trim() || "📱 Другое";
+    const category = elements.category.value.trim() || title || "📱 Другое";
     const note = elements.note.value.trim();
     
     if (!title) {
@@ -260,9 +294,10 @@ async function addExpense() {
     // Сохраняем в IndexedDB
     await dbAddExpense(expense);
     
-    // Очищаем форму (кроме категории для быстрого ввода)
+    // Очищаем форму
     elements.title.value = "";
     elements.amount.value = "";
+    elements.category.value = "";
     elements.note.value = "";
     
     // Возвращаем фокус на поле названия
@@ -314,11 +349,11 @@ async function renderExpenses() {
         });
         
         return `
-          <li class="expense-item">
+          <li class="expense-item" data-id="${expense.id}" data-synced="${expense.synced}">
             <div class="expense-info">
               <div class="expense-title">${escapeHtml(expense.title)}</div>
               <div class="expense-meta">
-                ${date} • ${escapeHtml(expense.category)}
+                ${date}
                 ${expense.note ? " • " + escapeHtml(expense.note) : ""}
               </div>
             </div>
@@ -327,6 +362,9 @@ async function renderExpenses() {
           </li>
         `;
       }).join("");
+      
+      // Добавляем обработчики свайпа для каждой записи
+      setupSwipeHandlers();
     }
     
     // Обновляем сумму за месяц
@@ -355,6 +393,11 @@ function escapeHtml(text) {
   const div = document.createElement("div");
   div.textContent = text;
   return div.innerHTML;
+}
+
+// Переключение видимости расходов
+function toggleMonthlySummary() {
+  elements.monthlySummary.classList.toggle("collapsed");
 }
 
 // Обновить состояние кнопки синхронизации
@@ -523,6 +566,7 @@ function setupCategoryButtons() {
   elements.categoryBtns.forEach(btn => {
     btn.addEventListener("click", () => {
       const category = btn.dataset.category;
+      elements.title.value = category;
       elements.category.value = category;
       
       // Визуальная обратная связь
@@ -533,6 +577,83 @@ function setupCategoryButtons() {
       setTimeout(() => {
         btn.classList.remove("selected");
       }, 300);
+      
+      // Фокус на сумму
+      elements.amount.focus();
+    });
+  });
+}
+
+// ===== Swipe для удаления =====
+
+function setupSwipeHandlers() {
+  const items = document.querySelectorAll(".expense-item");
+  
+  items.forEach(item => {
+    let startX = 0;
+    let currentX = 0;
+    let isSwiping = false;
+    
+    item.addEventListener("touchstart", (e) => {
+      startX = e.touches[0].clientX;
+      currentX = startX;
+      isSwiping = true;
+      item.classList.add("swiping");
+    });
+    
+    item.addEventListener("touchmove", (e) => {
+      if (!isSwiping) return;
+      
+      currentX = e.touches[0].clientX;
+      const diff = currentX - startX;
+      
+      // Разрешаем свайп только влево
+      if (diff < 0) {
+        item.style.transform = `translateX(${diff}px)`;
+      }
+    });
+    
+    item.addEventListener("touchend", async () => {
+      if (!isSwiping) return;
+      
+      const diff = currentX - startX;
+      const threshold = -100; // Порог для удаления
+      
+      item.classList.remove("swiping");
+      
+      // Если свайп достаточно большой
+      if (diff < threshold) {
+        const expenseId = item.dataset.id;
+        const isSynced = item.dataset.synced === "true";
+        
+        // Можно удалять только несинхронизированные записи
+        if (!isSynced) {
+          item.classList.add("deleting");
+          
+          setTimeout(async () => {
+            try {
+              await dbDeleteExpense(expenseId);
+              await renderExpenses();
+              updateSyncButton();
+              showStatus("Запись удалена", "success");
+            } catch (error) {
+              console.error("Ошибка при удалении:", error);
+              showStatus("Ошибка удаления", "error");
+              item.classList.remove("deleting");
+              item.style.transform = "";
+            }
+          }, 300);
+        } else {
+          // Возвращаем на место если уже синхронизировано
+          item.style.transform = "";
+          showStatus("Нельзя удалить синхронизированную запись", "info");
+        }
+      } else {
+        // Возвращаем на место
+        item.style.transform = "";
+      }
+      
+      isSwiping = false;
     });
   });
 }
@@ -570,6 +691,7 @@ async function init() {
   elements.addBtn.addEventListener("click", addExpense);
   elements.syncBtn.addEventListener("click", syncExpenses);
   elements.filterSelect.addEventListener("change", renderExpenses);
+  elements.monthlySummary.addEventListener("click", toggleMonthlySummary);
   
   // Настройки
   elements.settingsBtn.addEventListener("click", openSettingsModal);
@@ -590,10 +712,6 @@ async function init() {
   });
   
   elements.amount.addEventListener("keydown", (e) => {
-    if (e.key === "Enter") addExpense();
-  });
-  
-  elements.category.addEventListener("keydown", (e) => {
     if (e.key === "Enter") addExpense();
   });
   
