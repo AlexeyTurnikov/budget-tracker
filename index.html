@@ -187,14 +187,14 @@
     /* ===== Кнопки категорий ===== */
     .category-buttons {
       display: grid;
-      grid-template-columns: repeat(3, 1fr);
+      grid-template-columns: repeat(2, 1fr);
       gap: 8px;
       margin-bottom: 16px;
     }
 
     .category-btn {
-      padding: 10px 8px;
-      font-size: 14px;
+      padding: 10px 12px;
+      font-size: 13px;
       font-weight: 500;
       background: var(--color-input-bg);
       color: var(--color-text);
@@ -203,6 +203,9 @@
       min-height: 44px;
       cursor: pointer;
       transition: all 0.2s ease;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
     }
 
     .category-btn:active {
@@ -514,12 +517,12 @@
 
     <label>Быстрый выбор</label>
     <div class="category-buttons">
-      <button class="category-btn" data-category="Кофе.Вкусвилл">☕ Кофе.Вкусвилл</button>
-      <button class="category-btn" data-category="Кофе.Цифра">☕ Кофе.Цифра</button>
-      <button class="category-btn" data-category="Столовая.НК">🍽️ Столовая.НК</button>
-      <button class="category-btn" data-category="Столовая.Цифра">🍽️ Столовая.Цифра</button>
-      <button class="category-btn" data-category="Вода">💧 Вода</button>
-      <button class="category-btn" data-category="Продукты">🛒 Продукты</button>
+      <button type="button" class="category-btn" data-category="Кофе.Вкусвилл">☕ Кофе.Вкусвилл</button>
+      <button type="button" class="category-btn" data-category="Кофе.Цифра">☕ Кофе.Цифра</button>
+      <button type="button" class="category-btn" data-category="Столовая.НК">🍽️ Столовая.НК</button>
+      <button type="button" class="category-btn" data-category="Столовая.Цифра">🍽️ Столовая.Цифра</button>
+      <button type="button" class="category-btn" data-category="Вода">💧 Вода</button>
+      <button type="button" class="category-btn" data-category="Продукты">🛒 Продукты</button>
     </div>
 
     <div class="input-group">
@@ -527,7 +530,7 @@
       <input type="text" id="note" placeholder="С кем или где" autocomplete="off" />
     </div>
 
-    <button class="btn-primary" id="addBtn">Добавить расход</button>
+    <button type="button" class="btn-primary" id="addBtn">Добавить расход</button>
 
     <div class="status" id="status"></div>
   </section>
@@ -535,8 +538,8 @@
   <!-- Синхронизация -->
   <section class="card">
     <h2>Синхронизация</h2>
-    <button class="btn-secondary" id="syncBtn">Синхронизировать</button>
-    <button class="btn-secondary" id="settingsBtn">⚙️ Настройки синка</button>
+    <button type="button" class="btn-secondary" id="syncBtn">Синхронизировать</button>
+    <button type="button" class="btn-secondary" id="settingsBtn">⚙️ Настройки синка</button>
   </section>
 
   <!-- История -->
@@ -558,7 +561,7 @@
     <div class="modal-content">
       <div class="modal-header">
         <h2>Настройки синка</h2>
-        <button class="btn-close" id="closeSettingsBtn">✕</button>
+        <button type="button" class="btn-close" id="closeSettingsBtn">✕</button>
       </div>
 
       <div class="input-group">
@@ -569,10 +572,10 @@
       <div class="input-group password-field">
         <label>Секретный токен</label>
         <input type="password" id="syncToken" placeholder="Ваш токен" />
-        <button class="password-toggle" id="toggleTokenBtn">Показать</button>
+        <button type="button" class="password-toggle" id="toggleTokenBtn">Показать</button>
       </div>
 
-      <button class="btn-primary" id="saveSettingsBtn">Сохранить</button>
+      <button type="button" class="btn-primary" id="saveSettingsBtn">Сохранить</button>
 
       <p class="status mt-2" id="settingsStatus"></p>
 
