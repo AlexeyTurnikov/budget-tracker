@@ -199,27 +199,6 @@ async function dbDeleteExpense(id) {
     request.onerror = () => reject(request.error);
   });
 }
-    ids.forEach((id) => {
-      const getRequest = store.get(id);
-      getRequest.onsuccess = () => {
-        const expense = getRequest.result;
-        if (expense) {
-          expense.synced = true;
-          store.put(expense);
-        }
-        completed++;
-        if (completed === ids.length) {
-          resolve();
-        }
-      };
-      getRequest.onerror = () => reject(getRequest.error);
-    });
-    
-    if (ids.length === 0) {
-      resolve();
-    }
-  });
-}
 
 // ===== Логика приложения =====
 
