@@ -6,38 +6,8 @@ const DB_NAME = "budgetDB";
 const STORE_NAME = "expenses";
 const DB_VERSION = 1;
 
-// ===== DOM элементы =====
-const elements = {
-  // Форма добавления
-  title: document.getElementById("title"),
-  amount: document.getElementById("amount"),
-  category: document.getElementById("category"),
-  note: document.getElementById("note"),
-  addBtn: document.getElementById("addBtn"),
-  status: document.getElementById("status"),
-  
-  // Список расходов
-  expenseList: document.getElementById("expenseList"),
-  filterSelect: document.getElementById("filterSelect"),
-  
-  // Месячная сумма
-  monthlyAmount: document.getElementById("monthlyAmount"),
-  monthlyLabel: document.getElementById("monthlyLabel"),
-  monthlySummary: document.getElementById("monthlySummary"),
-  
-  // Синхронизация
-  syncBtn: document.getElementById("syncBtn"),
-  settingsBtn: document.getElementById("settingsBtn"),
-  
-  // Модалка настроек
-  settingsModal: document.getElementById("settingsModal"),
-  closeSettingsBtn: document.getElementById("closeSettingsBtn"),
-  syncUrl: document.getElementById("syncUrl"),
-  syncToken: document.getElementById("syncToken"),
-  toggleTokenBtn: document.getElementById("toggleTokenBtn"),
-  saveSettingsBtn: document.getElementById("saveSettingsBtn"),
-  settingsStatus: document.getElementById("settingsStatus")
-};
+// ===== DOM элементы (будут инициализированы после загрузки) =====
+let elements = {};
 
 // ===== Утилиты =====
 
@@ -675,6 +645,41 @@ async function registerServiceWorker() {
 // ===== Инициализация =====
 
 async function init() {
+  // Инициализация DOM элементов
+  elements = {
+    // Форма добавления
+    title: document.getElementById("title"),
+    amount: document.getElementById("amount"),
+    category: document.getElementById("category"),
+    note: document.getElementById("note"),
+    addBtn: document.getElementById("addBtn"),
+    status: document.getElementById("status"),
+    
+    // Список расходов
+    expenseList: document.getElementById("expenseList"),
+    filterSelect: document.getElementById("filterSelect"),
+    
+    // Месячная сумма
+    monthlyAmount: document.getElementById("monthlyAmount"),
+    monthlyLabel: document.getElementById("monthlyLabel"),
+    monthlySummary: document.getElementById("monthlySummary"),
+    
+    // Синхронизация
+    syncBtn: document.getElementById("syncBtn"),
+    settingsBtn: document.getElementById("settingsBtn"),
+    
+    // Модалка настроек
+    settingsModal: document.getElementById("settingsModal"),
+    closeSettingsBtn: document.getElementById("closeSettingsBtn"),
+    syncUrl: document.getElementById("syncUrl"),
+    syncToken: document.getElementById("syncToken"),
+    toggleTokenBtn: document.getElementById("toggleTokenBtn"),
+    saveSettingsBtn: document.getElementById("saveSettingsBtn"),
+    settingsStatus: document.getElementById("settingsStatus")
+  };
+  
+  console.log("Элементы инициализированы:", elements.title, elements.amount, elements.addBtn);
+  
   // Регистрация Service Worker
   registerServiceWorker();
   
